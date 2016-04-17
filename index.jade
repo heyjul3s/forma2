@@ -1,0 +1,54 @@
+html(lang='en-AU')
+    head
+        meta(charset='UTF-8')
+        meta(http-equiv='X-UA-Compatible' content='IE=edge')
+        meta(name='viewport' content='width=device-width, initial-scale=1')
+        meta(name='description' content='Form validation with es2015')
+        meta(name='author' content='Julian Low')
+        title Forma 2
+        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css')
+        link(rel='stylesheet' href='dist/style.css')
+        line(href='https://fonts.googleapis.com/css?family=Arimo:400,700' rel='stylesheet' type='text/css')
+
+    body
+        .container
+            .wrapper
+                header.site-header
+                    h1 Forma
+                    p Form validation with es2015
+                    
+            form.forma
+            
+                //COMMENT FIELD
+                .form-group.comment-field
+                    label(for='comment') comment
+                    
+                    .txt-wrap
+                        textarea.comment.form-control (name='comment' cols='30' rows='10' placeholder='Say Something...' max-length='300')
+                        span.innerlay
+                        span.char-count
+                        
+                        
+                    //NAME FIELD
+                    .name-field.form-group
+                        label(for='name') name
+                        
+                        .input-wrap
+                            input.name.form-control (name='name' type='text' placeholder='Please enter your name' max-lengt='40')
+                            span.innerlay
+                            span.char-count
+                            
+                            
+                    //E-MAIL FIELD        
+                    .email-field.form-group
+                        label(for='email') E-mail
+                        
+                        .input-wrap
+                            input.email.form-control (name='email' type='email' placeholder='Please enter your email' max-lengt='40')
+                            span.innerlay
+                            span.char-count
+                        
+                        
+                    //BUTTON SUBMIT
+                    .form-group
+                        button.submit.btn.btn-default.disabled (type='submit') Submit
