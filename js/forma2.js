@@ -1,13 +1,10 @@
+// TODO: ensure functioning scope.validator
+
 (function(window, document){
     'use strict';
 
-    //1 - config
-    //2 - configurator
-    //3 - validator
-    //4 - init
-
     //TODO: add parameter defaults?
-    var Forma = function(spec, config) {
+    var Forma = function() {
         let scope = {};
 
         /**
@@ -15,16 +12,8 @@
          * @type {Object}
          */
         scope.form = {
-            id : function(id) {
-                return document.getElementById(id);
-            },
-
-            target : function(ev) {
-                return ev.target;
-            },
-
-            targetParent : function(ev) {
-                return ev.target.parentNode;
+            id : function(formID) {
+                return document.querySelector(formID);
             }
         };
 
@@ -32,24 +21,54 @@
          * helper functions
          * @type {Object}
          */
-
-         addClass    : ( el, cl ) => el.classList.add(cl.trim()),
-         removeClass : ( el, cl ) => el.classList.remove(cl.trim()),
-         toggleClass : ( el, cl ) => el.classList.toggle(cl.trim()),
-         hasClass    : ( el, cl ) => el.classList.contains(cl.trim()),
-         swapClass   : ( el, cl ) => util.klass.hasClass(el, cl) ? util.klass.removeClass(el, cl) : util.klass.addClass(el, cl)
-
-
         scope.helper = {
-            isArray         : (arr) => Array.isArray(arr),
-            isString        : (str) => Object.prototype.toString.call(str) === '[object String]'),
-            isDefined       : (arg) => typeof arg !== 'undefined' && arg,
-            objectIsEmpty   : (obj) => Object.keys(obj).length !== 0,
+            isArray : function(arr) {
+                return Array.isArray(arr);
+            },
 
-            //TODO: validate functions?
-            isObject        : function(obj) {
+            isString : function(str) {
+                return Object.prototype.toString.call(str) === '[object String]';
+            },
+
+            isDefined : function(arg) {
+                return arg && typeof arg !== 'undefined';
+            },
+
+            isObject : function(obj) {
                 if ( obj === null ) { return false; }
                 return (obj === Object(obj) && !Array.isArray(obj) );
+            },
+
+            isEmptyObject : function(obj) {
+                return Object.keys(obj).length !== 0;
+            },
+
+            stripTags : function(value) {
+                return String(value)
+                        .replace( /&/g, '&amp;'  )
+                        .replace( /</g, '&lt;'   )
+                        .replace( />/g, '&gt;'   )
+                        .replace( /"/g, '&quot;' );
+            },
+
+            createElement : function(tag, options) {
+                let el = document.createElement(tag);
+
+                if (options){
+                    if (options.className) el.className = options.className;
+                    if (options.appendTo) options.appendTo.appendChild(el);
+                }
+                return el;
+            },
+
+            //adds multiple event listeners to an element
+            addEventListeners : function(el, s, fn) {
+                let events = s.split(' '),
+                    i = events.length;
+
+                do {
+                    el.addEventListener(events[i], fn, true);
+                } while ( i -= 1 );
             }
         };
 
@@ -83,7 +102,7 @@
         scope.validationType = {
             'required': {
     			test: function(val) {
-    				var emptyString = isString(val) && val.trim() === '';
+    				var emptyString = scope.helper.isString(val) && val.trim() === '';
     				return val !== undefined && val !== null && !emptyString;
     			},
     			hint: 'This field required'
@@ -125,9 +144,9 @@
              * @param  {[type]} config [description]
              * @return {[type]}        [description]
              */
-        	getValidations : function(check, config) {
-        		if ( helper.isString(check) && (config.type[check]) ) {
-        			return config.type[check];
+        	getValidations : function(check) {
+        		if ( scope.helper.isString(check) && (scope.validationType[check]) ) {
+        			return scope.validationType[check];
         		}
         	},
 
@@ -138,17 +157,275 @@
              * @return {[type]}        [description]
              */
         	setup : function(config) {
-        		let config    = config || {},
-        		    inputObj  = [];
+        		let inputMandate  = [];
 
+                //TODO: convert loop to ...
+                // for (let [k, v] of Object.entries(config)) {
+                //      // do something with k and v
+                // }
+
+                for (var key in config) {
+        			if (config.hasOwnProperty(key)) {
+        				var checks = scope.configurator.checkArray(config[key]);
+
+        				checks.forEach(function(check, i){
+        					inputMandate.push({
+        						ctrl: document.querySelector('.' + key),
+        						check: scope.configurator.getValidations(check)
+        					});
+        				});
+        			}
+        		}
+
+
+        		return inputMandate;
         	}
         };
 
 
+        scope.validator = {
+
+            setupField : function(elCreate, cl, parent) {
+        		let elExist = elCreate + '.' + cl;
+
+        		if ( !parent.contains(parent.querySelector(elExist)) ) {
+        			scope.helper.createElement( elCreate, {
+        				className: cl,
+        				appendTo: parent
+        			});
+        		}
+        	},
+
+            confirmField : function(el) {
+                if ( scope.helper.isString(el.value) ) return el.check.test(scope.helper.stripTags(el.value)) === true;
+            },
+
+            allTrue : function( el, i ,validationList ) {
+                return el === true;
+            },
+
+            noSubmit : function(el) {
+                el.disabled = true;
+            },
+
+
+            /**
+             * return input to its original neutral state
+             * @param  {[type]} removals [description]
+             * @param  {[type]} el       [description]
+             * @return {[type]}          [description]
+             */
+            isNeutral : function(removals, el) {
+                let elem = el,
+                    elemClasses = [].slice.call(elem.classList),
+                    toRemove = removals.split(' ');
+
+                if ( el === undefined || el === null ) {
+                    return;
+                } else {
+                    for (var i = 0; i < toRemove.length; i += 1) {
+                        elemClasses.some(function(cl, j){
+                            if (cl === toRemove[i]) {
+                                klass.remove(elem, cl);
+                            } else {
+                                return;
+                            }
+                        });
+                    }
+                }
+            },
+
+
+            /**
+             * return all fields with configs in array validationList
+             * @param  {[type]} config [description]
+             * @return {[type]}        [description]
+             */
+        	processFieldsValidation : function(config) {
+        		let configuration  = scope.configurator.setup(config),
+        		    checks         = [],
+        			validationList = [];
+
+        		configuration.forEach(function(field, i){
+        			checks.push(field);
+
+        			var fields = checks[i];
+
+        			validationList.push({
+        				ctrl  : fields.ctrl,
+        				value : fields.ctrl.value,
+        				check : fields.check
+        			});
+        		});
+
+        		return validationList;
+        	},
+
+
+            /**
+             * filter configs not specific to field for use in single field validation
+             * @param  {[type]} config [description]
+             * @param  {[type]} ev     [description]
+             * @return {[type]}        [description]
+             */
+            processFieldValidation : function(config, ev) {
+                let inputField = ev.target,
+                    fieldValObj = [];
+
+                for (var i = 0; i < config.length; i += 1) {
+                    if (config[i].ctrl === inputField) {
+                        fieldValObj.push(config[i]);
+                    }
+                }
+                return fieldValObj;
+            },
+
+
+            /**
+             * validates all fields. used to confirm valid form fields before allowing submit
+             * @param  {[type]} config [description]
+             * @param  {[type]} ev     [description]
+             * @return {[type]}        [description]
+             */
+            validateAllFields : function(config, ev){
+                var inputField = ev.target,
+                    results = [];
+
+                config.forEach(function(field, i){
+                    results.push(scope.validator.confirmField(field));
+                });
+
+                return results;
+            },
+
+
+            /**
+             * executes validation function on targeted single Field
+             * @param  {[type]} config [description]
+             * @return {[type]}        [description]
+             */
+            validateSingleField : function(config) {
+        		let errorTxt = '';
+
+        		config.some(function(el, i){
+        			let hintSpan 	  = el.ctrl.parentNode.querySelector('span.msg'),
+        			    otherHintSpan = el.ctrl.parentNode.parentNode.querySelector('span.hint');
+
+        			if ( !scope.validator.confirmField(el) ) {
+        				errorTxt += el.check.hint;
+        				otherHintSpan.textContent = errorTxt;
+
+                        hintSpan.classList.add('error');
+                        otherHintSpan.classList.add('visible');
+
+        				return errorTxt;
+        			} else if ( config.every(validator.confirmField) ) {
+
+        				hintSpan.classList.add('success');
+        				return true;
+        			}
+        		});
+        	},
+
+
+            /**
+             * if not all fields valid, disable otherwise enable
+             * @param  {[type]} validationList [description]
+             * @return {[type]}                [description]
+             */
+            isSubmitable : function(validationList) {
+
+                let promise = new Promise(function(resolve, reject){
+                    if ( validationList.every(validator.allTrue) ) {
+                        resolve(validationList);
+                    } else {
+                        reject(validationList);
+                    }
+                });
+
+                promise.then(function(){
+                    document.querySelector('#submit').disabled = false;
+
+                    if ( document.querySelector('#submit').classList.contains('disabled') ) {
+                        document.querySelector('#submit').classList.remove('disabled');
+                        document.querySelector('#submit').classList.add('enabled');
+                    }
+
+                }).catch(function(){
+                    document.querySelector('#submit').disabled = false;
+
+                    if ( !document.querySelector('#submit').classList.contains('disabled') ) {
+                        document.querySelector('#submit').classList.remove('enabled');
+                        document.querySelector('#submit').classList.add('disabled');
+                    }
+
+                });
+            }
+        };
+
+
+        /**
+         * invoke all required functionality
+         * @return {[type]} [description]
+         */
         scope.init = function() {
+            let forma = scope.form.id('.forma');
+
+            //disable submit functionality on load
+            scope.validator.noSubmit( document.querySelector('#submit') );
+
+            //TODO: setup counter function before use
+            // scope.addEventListeners(forma,'focus keyup keydown', function(ev){
+            //     charCount.setupCounter(
+            //         ev.target,
+            //         ev.target.parentNode.querySelector('span.char-count');
+            //     );
+            // });
+
+
+            /**
+             * blur events responsible for performing actual input data validation
+             * @param {[type]} 'blur'      [description]
+             * @param {[type]} function(ev [description]
+             */
+            forma.addEventListener('blur', function(ev){
+                let formaConfig = scope.validator.processFieldsValidation( scope.config );
+
+                scope.validator.isSubmitable( scope.validator.validateAllFields(formaConfig, ev ));
+                scope.validator.validateSingleField( scope.validator.processFieldValidation(formaConfig, ev));
+                // charCount.hideCounter	( $qr(forma.targetParent(ev), 'span.char-count') );
+            }, true);
+
+
+            /**
+             * Focus event is responsible for setting up all necessary requirements for validation
+             * @param {[type]} 'focus'     [description]
+             * @param {[type]} function(ev [description]
+             */
+            forma.addEventListener('focus', function(ev){
+
+                let target 			= ev.target,
+                    parent 			= target.parentNode,
+                    grandparent 	= parent.parentNode,
+                    fieldReady 		= scope.validator.setupField.bind(this, 'span'),
+                    neutraliseField = scope.validator.isNeutral.bind(this, 'error success visible');
+
+                    fieldReady	    	   ('msg', parent);
+        			fieldReady	    	   ('hint', grandparent);
+        			neutraliseField 	   (parent.querySelector('span.msg'));
+        			neutraliseField 	   (grandparent.querySelector('span.hint'));
+
+            }, true);
+
         };
 
         return scope;
     };
+
+    window.forma = Forma();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        forma.init();
+    }, false);
 
 }(window, document));

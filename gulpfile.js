@@ -72,14 +72,14 @@
     });
 
 
-    gulp.task( 'jade', function() {
-        return gulp.src( 'index.jade' )
-            .pipe( plumber() )
-            .pipe( jade({
-                pretty: true
-            }))
-            .pipe( gulp.dest( paths.dest.html ) );
-    });
+    // gulp.task( 'jade', function() {
+    //     return gulp.src( 'index.jade' )
+    //         .pipe( plumber() )
+    //         .pipe( jade({
+    //             pretty: true
+    //         }))
+    //         .pipe( gulp.dest( paths.dest.html ) );
+    // });
 
 
     gulp.task('stylus', function(){
@@ -115,9 +115,9 @@
 
 
     gulp.task('watch', function() {
-        gulp.watch( paths.src.jade, [
-            'jade'
-        ]);
+        // gulp.watch( paths.src.jade, [
+        //     'jade'
+        // ]);
 
         gulp.watch( paths.src.stylus, [
             'stylus',
