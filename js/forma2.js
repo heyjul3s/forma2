@@ -1,5 +1,3 @@
-// TODO: ensure functioning scope.validator
-
 (function(window, document){
     'use strict';
 
@@ -7,7 +5,7 @@
     var Forma = function() {
         let scope = {};
 
-        /**
+         /**
          * Selectors
          * @type {Object}
          */
@@ -226,7 +224,7 @@
                     for (var i = 0; i < toRemove.length; i += 1) {
                         elemClasses.some(function(cl, j){
                             if (cl === toRemove[i]) {
-                                klass.remove(elem, cl);
+                                elem.classList.remove(cl);
                             } else {
                                 return;
                             }
@@ -305,6 +303,8 @@
              * @return {[type]}        [description]
              */
             validateSingleField : function(config) {
+                //TODO: error msg append to label
+
         		let errorTxt = '';
 
         		config.some(function(el, i){
