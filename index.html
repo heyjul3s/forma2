@@ -1,0 +1,66 @@
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Form Validation via linked object pattern">
+    <meta name="author" content="Julian Low">
+    <title>Forma 2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,900,700,300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="dist/style.css">
+</head>
+
+<body>
+    <div class="container">
+
+		<header class="site-header">
+			<h1>
+				<strong>FORMA</strong>
+			</h1>
+			<p>an implementation of a form interaction idea</p>
+		</header>
+
+        <div class="inner">
+    		<form class="forma">
+    			<div class="form-group name-field">
+    					<input class="name form-control pristine"
+    						   name="name"
+    						   type="text"
+    						   max-length="40">
+                       <label for="name">Name</label>
+    					<span class="bottom-bar"></span>
+    					<span class="char-count"></span>
+    			</div>
+
+    			<div class="form-group email-field">
+    					<input class="email form-control pristine"
+    						   name="email"
+    						   type="email"
+    						   max-length="40">
+                       <label for="email">E-mail</label>
+    					<span class="bottom-bar"></span>
+    					<span class="char-count"></span>
+    			</div>
+
+                <div class="form-group comment-field">
+                        <textarea class="comment form-control pristine" name="comment" cols="30" rows="1" max-length="300"></textarea>
+                        <label for="comment">Comment</label>
+                        <span class="bottom-bar"></span>
+                        <span class="char-count"></span>
+                </div>
+
+    			<div class="form-group">
+    				<button id="submit"
+    						class="btn btn-default disabled"
+    						type="submit" >
+    						Submit
+    				</button>
+    			</div>
+    		</form>
+        </div>
+    </div>
+
+    <script src="dist/forma2.js"></script>
+</body>
+</html>

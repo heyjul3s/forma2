@@ -103,7 +103,8 @@
     				var emptyString = scope.helper.isString(val) && val.trim() === '';
     				return val !== undefined && val !== null && !emptyString;
     			},
-    			hint: 'This field required'
+                errorMsg : ' field is required',
+    			hint: ' field is required'
     		},
 
     		'name' : {
@@ -111,6 +112,7 @@
     				var re = /^[a-z0-9_\-]+$/i;
     				return re.test(value);
     			},
+                errorMsg : ' field is invalid',
     			hint: 'Use " - ", " _ " and alphanumerics only.'
     		},
 
@@ -119,6 +121,7 @@
     				var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     				return re.test(value);
     			},
+                errorMsg : ' field is invalid',
     			hint: 'Enter ie. my@email.com'
     		}
         };
@@ -309,7 +312,7 @@
 
         		config.some(function(el, i){
         			let hintSpan 	  = el.ctrl.parentNode.querySelector('span.msg'),
-        			    otherHintSpan = el.ctrl.parentNode.parentNode.querySelector('span.hint');
+        			    otherHintSpan = el.ctrl.parentNode.querySelector('span.hint');
 
         			if ( !scope.validator.confirmField(el) ) {
         				errorTxt += el.check.hint;
@@ -411,7 +414,7 @@
                     neutraliseField = scope.validator.isNeutral.bind(this, 'error success visible');
 
                     fieldReady	    	   ('msg', parent);
-        			fieldReady	    	   ('hint', grandparent);
+        			fieldReady	    	   ('hint', parent);
         			neutraliseField 	   (parent.querySelector('span.msg'));
         			neutraliseField 	   (grandparent.querySelector('span.hint'));
 

@@ -1,23 +1,47 @@
-.form-group
-    padding 15px 0
+.site-header
+    text-align center
 
 .container
     center(1200px)
 
     .inner
-        center(800px)
+        center(600px)
+        padding 0 20px
 
 .forma
     width 100%
     margin 0 auto
 
     label
-        padding 0 20px
+        position absolute
+        top calc(50% - 10px)
+        left 0
+
+    input,
+    textarea,
+    button
+        border none
+        appearance none
+        outline none
 
     input,
     textarea
         width 100%
-        padding 15px
-        border none
-        appearance none
-        outline none
+        padding 15px 0
+
+    button[type='submit']
+        background black
+        color white
+        min-width 200px
+        padding 20px 25px
+
+    .form-group
+        position relative
+        margin 15px 0
+        padding 15px 0
+
+        .bottom-bar
+            display block
+            width 100%
+            height 2px
+            background-color black
