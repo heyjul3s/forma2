@@ -103,8 +103,8 @@
     				var emptyString = scope.helper.isString(val) && val.trim() === '';
     				return val !== undefined && val !== null && !emptyString;
     			},
-                errorMsg : ' field is required',
-    			hint: ' field is required'
+                errorMsg : ' field is empty',
+    			hint: 'Please enter details.'
     		},
 
     		'name' : {
@@ -112,7 +112,7 @@
     				var re = /^[a-z0-9_\-]+$/i;
     				return re.test(value);
     			},
-                errorMsg : ' field is invalid',
+                errorMsg : ' field has prohibited characters',
     			hint: 'Use " - ", " _ " and alphanumerics only.'
     		},
 
@@ -122,7 +122,7 @@
     				return re.test(value);
     			},
                 errorMsg : ' field is invalid',
-    			hint: 'Enter ie. my@email.com'
+    			hint: 'Please try entering input ie. my@email.com'
     		}
         };
 
@@ -308,23 +308,47 @@
             validateSingleField : function(config) {
                 //TODO: error msg append to label
 
-        		let errorTxt = '';
+        		let errorTxt = '',
+                    errorMsg = '';
 
         		config.some(function(el, i){
-        			let hintSpan 	  = el.ctrl.parentNode.querySelector('span.msg'),
-        			    otherHintSpan = el.ctrl.parentNode.querySelector('span.hint');
+        			let hint      = el.ctrl.parentNode.querySelector('span.hint'),
+                        label     = el.ctrl.nextElementSibling,
+                        msg 	  = label.querySelector('span.msg');
 
         			if ( !scope.validator.confirmField(el) ) {
         				errorTxt += el.check.hint;
-        				otherHintSpan.textContent = errorTxt;
+                        errorMsg += el.check.errorMsg;
 
-                        hintSpan.classList.add('error');
-                        otherHintSpan.classList.add('visible');
+                        msg.textContent = errorMsg;
+                        msg.classList.add('visible');
+
+        				hint.textContent = errorTxt;
+                        hint.classList.add('visible');
+
+                        if ( !el.ctrl.parentNode.classList.contains('error') ) {
+                            el.ctrl.parentNode.classList.add('error');
+                        }
+
+                        // console.log(el.ctrl.parentNode.classList.contains('success') );
+
+                        if ( el.ctrl.parentNode.classList.contains('success') ) {
+                            el.ctrl.parentNode.classList.remove('success');
+                        }
 
         				return errorTxt;
-        			} else if ( config.every(validator.confirmField) ) {
+        			} else if ( config.every(scope.validator.confirmField) ) {
+                        //TODO: add 'success' class
+                        //
 
-        				hintSpan.classList.add('success');
+                        if ( el.ctrl.parentNode.classList.contains('error') ) {
+                            el.ctrl.parentNode.classList.remove('error');
+                        }
+
+                        if ( !el.ctrl.parentNode.classList.contains('success') ) {
+                            el.ctrl.parentNode.classList.add('success');
+                        }
+
         				return true;
         			}
         		});
@@ -413,10 +437,11 @@
                     fieldReady 		= scope.validator.setupField.bind(this, 'span'),
                     neutraliseField = scope.validator.isNeutral.bind(this, 'error success visible');
 
-                    fieldReady	    	   ('msg', parent);
+                    fieldReady	    	   ('msg', target.nextElementSibling);
         			fieldReady	    	   ('hint', parent);
-        			neutraliseField 	   (parent.querySelector('span.msg'));
-        			neutraliseField 	   (grandparent.querySelector('span.hint'));
+                    neutraliseField 	   (parent);
+                    neutraliseField 	   (parent.querySelector('span.msg'));
+                    neutraliseField 	   (grandparent.querySelector('span.hint'));
 
             }, true);
 
