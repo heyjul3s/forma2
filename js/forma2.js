@@ -178,7 +178,6 @@
         			}
         		}
 
-
         		return inputMandate;
         	}
         };
@@ -330,8 +329,6 @@
                             el.ctrl.parentNode.classList.add('error');
                         }
 
-                        // console.log(el.ctrl.parentNode.classList.contains('success') );
-
                         if ( el.ctrl.parentNode.classList.contains('success') ) {
                             el.ctrl.parentNode.classList.remove('success');
                         }
@@ -339,7 +336,7 @@
         				return errorTxt;
         			} else if ( config.every(scope.validator.confirmField) ) {
                         //TODO: add 'success' class
-                        //
+                        //TODO: remove elements msg, hint
 
                         if ( el.ctrl.parentNode.classList.contains('error') ) {
                             el.ctrl.parentNode.classList.remove('error');
@@ -390,6 +387,36 @@
             }
         };
 
+        scope.counter = {
+
+            setup : function(el, counter){
+                let maxLength;
+
+                if ( el.hasAttribute('max-length') ) {
+                    maxLength = el.getAttribute('max-length');
+
+                    if ( !!maxLength && el.value.length > maxLength ) {
+                        el.value = el.value.substring(0, maxLength);
+                    } else {
+                        counter.textContent = maxLength - el.value.length;
+                    }
+                }
+            },
+
+            show : function(counter) {
+
+                if ( !counter.classList.contains('active') ) {
+                    counter.classList.add('active');
+                }
+            },
+
+            hide : function(counter) {
+                if ( counter.classList.contains('active') ) {
+                    counter.classList.remove('active');
+                }
+            }
+        };
+
 
         /**
          * invoke all required functionality
@@ -401,14 +428,13 @@
             //disable submit functionality on load
             scope.validator.noSubmit( document.querySelector('#submit') );
 
-            //TODO: setup counter function before use
-            // scope.addEventListeners(forma,'focus keyup keydown', function(ev){
-            //     charCount.setupCounter(
-            //         ev.target,
-            //         ev.target.parentNode.querySelector('span.char-count');
-            //     );
-            // });
-
+            //setup char counter
+            scope.helper.addEventListeners(forma,'focus keyup keydown', function(ev){
+                scope.counter.setup(
+                    ev.target,
+                    ev.target.parentNode.querySelector('span.char-count')
+                );
+            });
 
             /**
              * blur events responsible for performing actual input data validation
@@ -420,7 +446,7 @@
 
                 scope.validator.isSubmitable( scope.validator.validateAllFields(formaConfig, ev ));
                 scope.validator.validateSingleField( scope.validator.processFieldValidation(formaConfig, ev));
-                // charCount.hideCounter	( $qr(forma.targetParent(ev), 'span.char-count') );
+                scope.counter.hide( ev.target.parentNode.querySelector('span.char-count') );
             }, true);
 
 
@@ -442,6 +468,7 @@
                     neutraliseField 	   (parent);
                     neutraliseField 	   (parent.querySelector('span.msg'));
                     neutraliseField 	   (grandparent.querySelector('span.hint'));
+                    scope.counter.show     ( parent.querySelector('span.char-count') );
 
             }, true);
 
