@@ -67,6 +67,22 @@
                 do {
                     el.addEventListener(events[i], fn, true);
                 } while ( i -= 1 );
+            },
+
+            addClass : function(element, klassName) {
+                let klass = klassName.trim();
+
+                if ( !element.classList.contains(klass) ) {
+                    element.classList.add(klass);
+                }
+            },
+
+            removeClass : function(element, klassName) {
+                let klass = klassName.trim();
+
+                if ( element.classList.contains(klass) ) {
+                    element.classList.remove(klass);
+                }
             }
         };
 
@@ -104,7 +120,7 @@
     				return val !== undefined && val !== null && !emptyString;
     			},
                 errorMsg : ' field is empty',
-    			hint: 'Please enter details.'
+    			hint: 'Please fill in this field.'
     		},
 
     		'name' : {
@@ -113,7 +129,7 @@
     				return re.test(value);
     			},
                 errorMsg : ' field has prohibited characters',
-    			hint: 'Use " - ", " _ " and alphanumerics only.'
+    			hint: 'Only " - ", " _ " and alphanumerics are allowed.'
     		},
 
     		'email': {
@@ -121,7 +137,7 @@
     				var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     				return re.test(value);
     			},
-                errorMsg : ' field is invalid',
+                errorMsg : ' field address is invalid',
     			hint: 'Please try entering input ie. my@email.com'
     		}
         };
@@ -185,11 +201,12 @@
 
         scope.validator = {
 
-            setupField : function(elCreate, cl, parent) {
-        		let elExist = elCreate + '.' + cl;
+            setupField : function(element, cl, parent) {
+                //TODO: what if more than one class? add conditional
+        		let theElement = element + '.' + cl;
 
-        		if ( !parent.contains(parent.querySelector(elExist)) ) {
-        			scope.helper.createElement( elCreate, {
+        		if ( !parent.contains(parent.querySelector(theElement)) ) {
+        			scope.helper.createElement( element, {
         				className: cl,
         				appendTo: parent
         			});
@@ -304,47 +321,44 @@
              * @param  {[type]} config [description]
              * @return {[type]}        [description]
              */
-            validateSingleField : function(config) {
-                //TODO: error msg append to label
+            validateSingleField : function(config, labelWidths) {
 
         		let errorTxt = '',
                     errorMsg = '';
 
         		config.some(function(el, i){
-        			let hint      = el.ctrl.parentNode.querySelector('span.hint'),
+        			let parent    = el.ctrl.parentNode,
+                        hint      = parent.querySelector('span.hint'),
                         label     = el.ctrl.nextElementSibling,
+                        labelName = label.getAttribute('for'),
                         msg 	  = label.querySelector('span.msg');
 
         			if ( !scope.validator.confirmField(el) ) {
         				errorTxt += el.check.hint;
                         errorMsg += el.check.errorMsg;
 
-                        msg.textContent = errorMsg;
-                        msg.classList.add('visible');
+                        //TODO: MutationObserver
+                        // msg.classList.add('pre-visible');
+                        // // window.getComputedStyle(msg);
+                        // var observer = new MutationObserver(msg);
 
-        				hint.textContent = errorTxt;
-                        hint.classList.add('visible');
+                        scope.interface.readyErrorResponse(msg, labelWidths[labelName], errorMsg, 'visible' );
 
-                        if ( !el.ctrl.parentNode.classList.contains('error') ) {
-                            el.ctrl.parentNode.classList.add('error');
-                        }
+                        // msg.textContent = errorMsg;
+                        // scope.helper.addClass(msg, 'visible');
+                        // msg.style.left = labelWidths[labelName] + 'px';
 
-                        if ( el.ctrl.parentNode.classList.contains('success') ) {
-                            el.ctrl.parentNode.classList.remove('success');
-                        }
+                        hint.textContent = errorTxt;
+                        scope.helper.addClass(hint, 'visible');
+
+                        scope.helper.addClass(parent, 'error');
+                        scope.helper.removeClass(parent, 'success');
 
         				return errorTxt;
         			} else if ( config.every(scope.validator.confirmField) ) {
-                        //TODO: add 'success' class
-                        //TODO: remove elements msg, hint
 
-                        if ( el.ctrl.parentNode.classList.contains('error') ) {
-                            el.ctrl.parentNode.classList.remove('error');
-                        }
-
-                        if ( !el.ctrl.parentNode.classList.contains('success') ) {
-                            el.ctrl.parentNode.classList.add('success');
-                        }
+                        scope.helper.addClass(parent, 'success');
+                        scope.helper.removeClass(parent, 'error');
 
         				return true;
         			}
@@ -387,6 +401,35 @@
             }
         };
 
+
+        scope.interface = {
+            getLabelWidth : function( textObject ) {
+                let labelWidth = {};
+
+                if (textObject === Object(textObject) && !Array.isArray(textObject)) {
+
+                   Object.keys(textObject).forEach(function (key) {
+                       //TODO: destructure
+                       var label = textObject[key],
+                           labelBoundingRect = label.getBoundingClientRect(),
+                           objKey = label.getAttribute('for'),
+                           value = labelBoundingRect.width;
+
+                       labelWidth[objKey] = value;
+                   });
+                }
+
+                return labelWidth;
+            },
+
+            //TODO: too flimsy, fix
+            readyErrorResponse : function(element, offsetX, text, klass) {
+                element.textContent = text;
+                scope.helper.addClass(element, klass);
+                element.style.left = offsetX + 'px';
+            }
+        };
+
         scope.counter = {
 
             setup : function(el, counter){
@@ -425,6 +468,9 @@
         scope.init = function() {
             let forma = scope.form.id('.forma');
 
+            let labelWidths = scope.interface.getLabelWidth(document.querySelectorAll('label'));
+
+            //TODO: fix, not disabling
             //disable submit functionality on load
             scope.validator.noSubmit( document.querySelector('#submit') );
 
@@ -444,8 +490,8 @@
             forma.addEventListener('blur', function(ev){
                 let formaConfig = scope.validator.processFieldsValidation( scope.config );
 
-                scope.validator.isSubmitable( scope.validator.validateAllFields(formaConfig, ev ));
-                scope.validator.validateSingleField( scope.validator.processFieldValidation(formaConfig, ev));
+                scope.validator.isSubmitable( scope.validator.validateAllFields(formaConfig, ev ) );
+                scope.validator.validateSingleField( scope.validator.processFieldValidation(formaConfig, ev), labelWidths );
                 scope.counter.hide( ev.target.parentNode.querySelector('span.char-count') );
             }, true);
 
@@ -463,6 +509,7 @@
                     fieldReady 		= scope.validator.setupField.bind(this, 'span'),
                     neutraliseField = scope.validator.isNeutral.bind(this, 'error success visible');
 
+                    // fieldReady	    	   ('msg', target.nextElementSibling);
                     fieldReady	    	   ('msg', target.nextElementSibling);
         			fieldReady	    	   ('hint', parent);
                     neutraliseField 	   (parent);

@@ -1,3 +1,5 @@
+@import 'base/all.styl'
+
 .site-header
     text-align center
 
@@ -25,20 +27,30 @@
         border none
         appearance none
         outline none
+        color white
 
     input,
     textarea
+        background-color transparent
         width 100%
         padding 15px 0
 
     button[type='submit']
+        display block
+        margin 0 auto
         background black
-        color white
         min-width 200px
         padding 20px 25px
 
+        +below(550px)
+            min-width 100%
+
     input:focus + label
         top 0
+
+    input:focus + label + .bottom-bar::after
+        width 100%
+        max-width 100%
 
     textarea:focus + label
         top 0
@@ -48,44 +60,78 @@
         margin 15px 0
         padding 15px 0
 
-
         label
-            > .msg
-                display inlinne
+            .msg
+                display block
+                position relative
+                padding-left 5px
                 opacity 0
                 visibility hidden
-                transition transform 400ms ease-out, opacity 400ms ease-out, visibility 400ms ease-out
-                transform translateX(-100%)
+                transition transform 400ms ease-out, opacity 400ms ease-out, visibility 400ms ease-out, color 400ms ease-out
+                transform translate(-100%, -100%)
+
+                &.visible
+                    opacity 1
+                    visibility visible
+                    transform translate(0, -100%)
 
         .hint
             display block
             margin 10px 0
+            font-size .9em
+            font-style italic
+
             opacity 0
             visibility hidden
-            transition opacity 400ms ease-out, visibility 400ms ease-out
+            transition opacity 400ms ease-out, visibility 400ms ease-out, transform 400ms ease-out
+            transform translateX(-30%)
+            transition-delay 200ms
 
             &.visible
-                transition-delay 200ms
+
                 opacity 1
                 visibility visible
+                transform translateX(0)
+
+        .char-counter
+            position absolute
+            top calc(50% - 30px)
+            right 0
+            width 30px
+            height 30px
+            color white
+
+            &::before,
+            &::after
+                content ''
+                display block
+                width 30px
+                height 30px
 
         .bottom-bar
             display block
+            position relative
             width 100%
             height 2px
-            background-color black
+            background-color faded-black
             transition background 400ms ease-out
+
+            &::after
+                display block
+                content ''
+                width 0
+                height 2px
+                background-color purple
+                transition width 400ms ease-out, max-width 400ms ease-out
 
         //ERROR STATES
         &.error
             label
                 top 0
+                color white
 
                 > .msg
-                    width 100%
-                    opacity 1
-                    visibility visible
-                    transform translateX(0)
+                    color red
 
             .bottom-bar
                 background-color red
@@ -95,10 +141,10 @@
             label
                 top 0
 
-                > .msg
+                > .msg.visible
                     opacity 0
                     visibility hidden
-                    transform translateX(-100%)
+                    transform translateX(0)
 
             .bottom-bar
                 background-color green
