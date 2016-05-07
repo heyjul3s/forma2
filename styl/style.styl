@@ -79,7 +79,7 @@ footer
             &:not([disabled])
                 cursor pointer
                 opacity 1
-                background-color green
+                background-color success-green
 
         label
             .msg
@@ -136,7 +136,7 @@ footer
                 visibility visible
                 opacity 1
                 transform scale(1)
-                background-color purple
+                background-color neutral-blue
 
             &::before,
             &::after
@@ -159,7 +159,7 @@ footer
                 display block
                 width 0
                 height 2px
-                background-color purple
+                background-color neutral-blue
                 transition width 400ms ease-out, max-width 400ms ease-out
 
         .input-icon
@@ -169,7 +169,7 @@ footer
             right 0
             width 30px
             height 30px
-            background-color purple
+            background-color neutral-blue
             border-radius 50%
 
             transition opacity 400ms ease-out, visibility 400ms ease-out, transform 400ms ease-out, background-color 400ms ease-out, width 400ms ease-out, top 400ms ease-out, left 400ms ease-out
@@ -181,7 +181,7 @@ footer
                 opacity 1
                 visibility visible
                 transform scale(1)
-                background-color red
+                background-color error-red
 
             &::before,
             &::after
@@ -202,7 +202,6 @@ footer
                 left calc(50% - 8px)
                 transform rotate(-45deg)
 
-
         //ERROR STATES
         &.error
             label
@@ -210,10 +209,10 @@ footer
                 color white
 
                 > .msg
-                    color red
+                    color error-red
 
             .bottom-bar
-                background-color red
+                background-color error-red
 
 
         //SUCCESS STATES
@@ -227,10 +226,10 @@ footer
                     transform translateX(-30%)
 
             .bottom-bar
-                background-color green
+                background-color success-green
 
             .input-icon
-                background-color green
+                background-color success-green
                 opacity 1
                 visibility visible
                 transform scale(1)

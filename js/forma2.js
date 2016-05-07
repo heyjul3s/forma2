@@ -1,5 +1,3 @@
-//TODO: check if input is actually a submit button before invoking
-
 (function(window, document){
     'use strict';
 
