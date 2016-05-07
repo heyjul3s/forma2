@@ -4,7 +4,7 @@
     'use strict';
 
     //TODO: add parameter defaults?
-    var Forma = function() {
+    let Forma = function() {
         let scope = {};
 
          /**
@@ -62,8 +62,8 @@
             },
 
             //adds multiple event listeners to an element
-            addEventListeners : function(el, s, fn) {
-                let events = s.split(' '),
+            addEventListeners : function(el, str, fn) {
+                let events = str.split(' '),
                     i = 0;
 
                 for ( i; i < events.length; i += 1 ) {
@@ -103,11 +103,6 @@
                 checks : ['required', 'email'],
                 field : 'e-mail'
             }
-
-            // 'comment' : {
-            //     checks : ['required'],
-            //     field : 'comment'
-            // }
         };
 
 
@@ -118,7 +113,7 @@
         scope.validationType = {
             'required': {
     			test: function(val) {
-    				var emptyString = scope.helper.isString(val) && val.trim() === '';
+    				let emptyString = scope.helper.isString(val) && val.trim() === '';
     				return val !== undefined && val !== null && !emptyString;
     			},
                 errorMsg : ' field is empty',
@@ -127,7 +122,7 @@
 
     		'name' : {
     			test: function(value) {
-    				var re = /^[a-z0-9_\-]+$/i;
+    				let re = /^[a-z0-9_\-]+$/i;
     				return re.test(value);
     			},
                 errorMsg : ' field has prohibited characters',
@@ -136,7 +131,7 @@
 
     		'email': {
     			test: function(value) {
-    				var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    				let re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     				return re.test(value);
     			},
                 errorMsg : ' field address is invalid',
@@ -171,7 +166,7 @@
 
 
             /**
-             * [function description]
+             * Bundle all configs together
              * @param  {[type]} config [description]
              * @return {[type]}        [description]
              */
@@ -183,9 +178,9 @@
                 //      // do something with k and v
                 // }
 
-                for (var key in config) {
+                for (let key in config) {
         			if (config.hasOwnProperty(key)) {
-        				var checks = scope.configurator.checkArray(config[key]);
+        				let checks = scope.configurator.checkArray(config[key]);
 
         				checks.forEach(function(check, i){
         					inputMandate.push({
@@ -230,7 +225,7 @@
 
             /**
              * return input to its original neutral state
-             * @param  {[type]} removals [description]
+             * @param  {[string]} removals : a string of class names to remove
              * @param  {[type]} el       [description]
              * @return {[type]}          [description]
              */
@@ -242,9 +237,9 @@
                 if ( el === undefined || el === null ) {
                     return;
                 } else {
-                    for (var i = 0; i < toRemove.length; i += 1) {
+                    for (let i = 0; i < toRemove.length; i += 1) {
                         elemClasses.some(function(cl, j){
-                            if (cl === toRemove[i]) {
+                            if ( cl === toRemove[i] ) {
                                 elem.classList.remove(cl);
                             } else {
                                 return;
@@ -268,7 +263,7 @@
         		configuration.forEach(function(field, i){
         			checks.push(field);
 
-        			var fields = checks[i];
+        			let fields = checks[i];
 
         			validationList.push({
         				ctrl  : fields.ctrl,
@@ -291,7 +286,7 @@
                 let inputField = ev.target,
                     fieldValObj = [];
 
-                for (var i = 0; i < config.length; i += 1) {
+                for (let i = 0; i < config.length; i += 1) {
                     if (config[i].ctrl === inputField) {
                         fieldValObj.push(config[i]);
                     }
@@ -307,7 +302,7 @@
              * @return {[type]}        [description]
              */
             validateAllFields : function(config, ev){
-                var inputField = ev.target,
+                let inputField = ev.target,
                     results = [];
 
                 config.forEach(function(field, i){
@@ -336,44 +331,44 @@
                         icon      = parent.querySelector('.input-icon'),
                         msg 	  = label.querySelector('span.msg');
 
-        			if ( !scope.validator.confirmField(el) ) {
-        				errorTxt += el.check.hint;
-                        errorMsg += el.check.errorMsg;
+                    //If fail test
+                    if ( el.type !== 'submit' ) {
 
-                        scope.interface.readyErrorResponse(msg, labelWidths[labelName], errorMsg, 'visible' );
+                        if ( !scope.validator.confirmField(el) ) {
+                            errorTxt += el.check.hint;
+                            errorMsg += el.check.errorMsg;
 
-                        scope.helper.addClass(icon, 'visible');
+                            scope.interface.readyErrorResponse(msg, labelWidths[labelName], errorMsg, 'visible' );
 
-                        hint.textContent = errorTxt;
-                        hint.classList.add('visible');
-                        // scope.helper.addClass(hint, 'visible');
+                            scope.helper.addClass(icon, 'visible');
 
-                        scope.helper.addClass(parent, 'error');
-                        scope.helper.removeClass(parent, 'success');
+                            hint.textContent = errorTxt;
+                            hint.classList.add('visible');
 
-        				return errorTxt;
+                            scope.helper.addClass(parent, 'error');
+                            scope.helper.removeClass(parent, 'success');
 
-        			} else if ( scope.validator.confirmField(el) ) {
-                        scope.helper.addClass(parent, 'success');
-                        scope.helper.removeClass(parent, 'error');
-                        scope.helper.addClass(icon, 'success');
+                            return errorTxt;
 
-                        return true;
-        			} else {
-                        return false;
+                        //If pass all tests
+                        } else if ( config.every(scope.validator.confirmField) ) {
+                            scope.helper.addClass(parent, 'success');
+                            scope.helper.removeClass(parent, 'error');
+                            scope.helper.addClass(icon, 'success');
+
+                            return true;
+                        } else {
+                            return false;
+                        }
+
                     }
-
-                    // if ( config.every(scope.validator.confirmField) ) {
-                    //     return true;
-                    // }
         		});
         	},
 
 
             /**
              * if not all fields valid, disable otherwise enable
-             * @param  {[type]} validationList [description]
-             * @return {[type]}                [description]
+             * @param  {[array]} validationList [description]
              */
             isSubmitable : function(validationList) {
 
@@ -392,7 +387,6 @@
                         document.querySelector('#submit').classList.remove('disabled');
                         document.querySelector('#submit').classList.add('enabled');
                     }
-
                 }).catch(function(){
                     document.querySelector('#submit').disabled = true;
 
@@ -400,13 +394,17 @@
                         document.querySelector('#submit').classList.remove('enabled');
                         document.querySelector('#submit').classList.add('disabled');
                     }
-
                 });
             }
         };
 
 
         scope.interface = {
+            /**
+             * get all label widths
+             * @param  {[object]} textObject : list of labels
+             * @return {[object]}            : object with input name as key and matching width value
+             */
             getLabelWidth : function( textObject ) {
                 let labelWidth = {};
 
@@ -414,7 +412,7 @@
 
                    Object.keys(textObject).forEach(function (key) {
                        //TODO: destructure
-                       var label = textObject[key],
+                       let label = textObject[key],
                            labelBoundingRect = label.getBoundingClientRect(),
                            objKey = label.getAttribute('for'),
                            value = labelBoundingRect.width;
@@ -426,7 +424,6 @@
                 return labelWidth;
             },
 
-            //TODO: too flimsy, fix
             readyErrorResponse : function(element, offsetX, text, klass) {
                 element.textContent = text;
                 scope.helper.addClass(element, klass);
@@ -437,6 +434,7 @@
         scope.counter = {
 
             setup : function(el, counter){
+
                 if ( el.hasAttribute('max-length') ) {
                     let maxLength = el.getAttribute('max-length');
 
@@ -446,10 +444,10 @@
                         counter.textContent = maxLength - el.value.length;
                     }
                 }
+
             },
 
             show : function(counter) {
-
                 if ( !counter.classList.contains('active') ) {
                     counter.classList.add('active');
                 }
@@ -472,36 +470,39 @@
 
             let labelWidths = scope.interface.getLabelWidth(document.querySelectorAll('label'));
 
-            //TODO: fix, not disabling
             //disable submit functionality on load
             scope.validator.disableSubmit( document.querySelector('#submit') );
 
             //setup char counter
             scope.helper.addEventListeners(forma,'focus keyup keydown', function(ev){
+
                 scope.counter.setup(
                     ev.target,
                     ev.target.parentNode.querySelector('span.char-counter')
                 );
+
             });
 
             /**
              * blur events responsible for performing actual input data validation
-             * @param {[type]} 'blur'      [description]
-             * @param {[type]} function(ev [description]
+             * @param {[type]} 'blur'      : event type
+             * @param {[type]} function(ev)
              */
             forma.addEventListener('blur', function(ev){
+
                 let formaConfig = scope.validator.processFieldsValidation( scope.config );
 
                 scope.validator.isSubmitable( scope.validator.validateAllFields(formaConfig, ev ) );
                 scope.validator.validateSingleField( scope.validator.processFieldValidation(formaConfig, ev), labelWidths );
                 scope.counter.hide( ev.target.parentNode.querySelector('span.char-counter') );
+
             }, true);
 
 
             /**
              * Focus event is responsible for setting up all necessary requirements for validation
-             * @param {[type]} 'focus'     [description]
-             * @param {[type]} function(ev [description]
+             * @param {[type]} 'focus'     : event type
+             * @param {[type]} function(ev)
              */
             forma.addEventListener('focus', function(ev){
 

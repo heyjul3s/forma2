@@ -14,7 +14,7 @@ footer
     p
         text-align center
 
-    a 
+    a
         color white
 
 .forma
@@ -69,11 +69,17 @@ footer
         transition height 300ms ease-out
 
         .button-submit
+            transition background-color 400ms ease-out, opacity 400ms ease-out
+            font-size 1em
+            opacity .25
+
             &:disabled
                 background-color black
 
             &:not([disabled])
-                background-color hotpink
+                cursor pointer
+                opacity 1
+                background-color green
 
         label
             .msg
