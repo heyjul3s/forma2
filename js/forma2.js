@@ -1,4 +1,4 @@
-//TODO: buggy hinting, check flow
+//TODO: check if input is actually a submit button before invoking
 
 (function(window, document){
     'use strict';
@@ -219,11 +219,11 @@
                 if ( scope.helper.isString(el.value) ) return el.check.test(scope.helper.stripTags(el.value)) === true;
             },
 
-            allTrue : function( el, i ,validationList ) {
+            confirmAllFields : function( el, i ,validationList ) {
                 return el === true;
             },
 
-            noSubmit : function(el) {
+            disableSubmit : function(el) {
                 el.disabled = true;
             },
 
@@ -340,17 +340,13 @@
         				errorTxt += el.check.hint;
                         errorMsg += el.check.errorMsg;
 
-                        //TODO: MutationObserver
-                        // msg.classList.add('pre-visible');
-                        // // window.getComputedStyle(msg);
-                        // var observer = new MutationObserver(msg);
-
                         scope.interface.readyErrorResponse(msg, labelWidths[labelName], errorMsg, 'visible' );
 
                         scope.helper.addClass(icon, 'visible');
 
                         hint.textContent = errorTxt;
-                        scope.helper.addClass(hint, 'visible');
+                        hint.classList.add('visible');
+                        // scope.helper.addClass(hint, 'visible');
 
                         scope.helper.addClass(parent, 'error');
                         scope.helper.removeClass(parent, 'success');
@@ -358,16 +354,18 @@
         				return errorTxt;
 
         			} else if ( scope.validator.confirmField(el) ) {
-                        scope.helper.addClass(icon, 'success');
-        			}
-
-                    if ( config.every(scope.validator.confirmField) ) {
-
                         scope.helper.addClass(parent, 'success');
                         scope.helper.removeClass(parent, 'error');
+                        scope.helper.addClass(icon, 'success');
 
                         return true;
+        			} else {
+                        return false;
                     }
+
+                    // if ( config.every(scope.validator.confirmField) ) {
+                    //     return true;
+                    // }
         		});
         	},
 
@@ -380,7 +378,7 @@
             isSubmitable : function(validationList) {
 
                 let promise = new Promise(function(resolve, reject){
-                    if ( validationList.every(validator.allTrue) ) {
+                    if ( validationList.every(scope.validator.confirmAllFields) ) {
                         resolve(validationList);
                     } else {
                         reject(validationList);
@@ -396,7 +394,7 @@
                     }
 
                 }).catch(function(){
-                    document.querySelector('#submit').disabled = false;
+                    document.querySelector('#submit').disabled = true;
 
                     if ( !document.querySelector('#submit').classList.contains('disabled') ) {
                         document.querySelector('#submit').classList.remove('enabled');
@@ -476,7 +474,7 @@
 
             //TODO: fix, not disabling
             //disable submit functionality on load
-            scope.validator.noSubmit( document.querySelector('#submit') );
+            scope.validator.disableSubmit( document.querySelector('#submit') );
 
             //setup char counter
             scope.helper.addEventListeners(forma,'focus keyup keydown', function(ev){
@@ -513,14 +511,13 @@
                     fieldReady 		= scope.validator.setupField.bind(this, 'span'),
                     neutraliseField = scope.validator.isNeutral.bind(this, 'error success visible');
 
-                    // fieldReady	    	   ('msg', target.nextElementSibling);
                     fieldReady	    	   ('msg', target.nextElementSibling);
         			fieldReady	    	   ('hint', parent);
                     neutraliseField 	   (parent);
                     neutraliseField 	   (parent.querySelector('span.input-icon'));
                     neutraliseField 	   (parent.querySelector('span.msg'));
-                    neutraliseField 	   (grandparent.querySelector('span.hint'));
-                    scope.counter.show     ( parent.querySelector('span.char-counter') );
+                    neutraliseField 	   (parent.querySelector('span.hint'));
+                    scope.counter.show     (parent.querySelector('span.char-counter') );
 
             }, true);
 

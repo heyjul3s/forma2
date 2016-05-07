@@ -10,6 +10,13 @@
         center(600px)
         padding 0 20px
 
+footer
+    p
+        text-align center
+
+    a 
+        color white
+
 .forma
     width 100%
     margin 0 auto
@@ -57,9 +64,16 @@
 
     .form-group
         position relative
-        margin 15px 0
+        margin 45px 0
         padding 15px 0
         transition height 300ms ease-out
+
+        .button-submit
+            &:disabled
+                background-color black
+
+            &:not([disabled])
+                background-color hotpink
 
         label
             .msg
@@ -78,6 +92,7 @@
 
         .hint
             display block
+            position absolute
             margin 10px 0
             font-size .9em
             font-style italic
@@ -99,7 +114,7 @@
             right 0
             width 30px
             height 30px
-            padding 7px
+            padding 8px 9px
             color white
             background-color transparent
             border-radius 50%
@@ -173,7 +188,7 @@
 
             &::before
                 top calc(50% - 2px)
-                left calc(50% - 7px)
+                left calc(50% - 8px)
                 transform rotate(45deg)
 
             &::after
@@ -221,6 +236,6 @@
 
                 &::after
                     top: 48%;
-                    left: 22%;
+                    left: 25%;
                     width: 8px;
                     transform rotate3d(0, 1, 1, -300deg)
