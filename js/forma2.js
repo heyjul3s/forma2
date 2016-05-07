@@ -1,3 +1,5 @@
+//TODO: buggy hinting, check flow
+
 (function(window, document){
     'use strict';
 
@@ -62,11 +64,11 @@
             //adds multiple event listeners to an element
             addEventListeners : function(el, s, fn) {
                 let events = s.split(' '),
-                    i = events.length;
+                    i = 0;
 
-                do {
+                for ( i; i < events.length; i += 1 ) {
                     el.addEventListener(events[i], fn, true);
-                } while ( i -= 1 );
+                }
             },
 
             addClass : function(element, klassName) {
@@ -100,12 +102,12 @@
             'email' : {
                 checks : ['required', 'email'],
                 field : 'e-mail'
-            },
-
-            'comment' : {
-                checks : ['required'],
-                field : 'comment'
             }
+
+            // 'comment' : {
+            //     checks : ['required'],
+            //     field : 'comment'
+            // }
         };
 
 
@@ -331,6 +333,7 @@
                         hint      = parent.querySelector('span.hint'),
                         label     = el.ctrl.nextElementSibling,
                         labelName = label.getAttribute('for'),
+                        icon      = parent.querySelector('.input-icon'),
                         msg 	  = label.querySelector('span.msg');
 
         			if ( !scope.validator.confirmField(el) ) {
@@ -344,9 +347,7 @@
 
                         scope.interface.readyErrorResponse(msg, labelWidths[labelName], errorMsg, 'visible' );
 
-                        // msg.textContent = errorMsg;
-                        // scope.helper.addClass(msg, 'visible');
-                        // msg.style.left = labelWidths[labelName] + 'px';
+                        scope.helper.addClass(icon, 'visible');
 
                         hint.textContent = errorTxt;
                         scope.helper.addClass(hint, 'visible');
@@ -355,13 +356,18 @@
                         scope.helper.removeClass(parent, 'success');
 
         				return errorTxt;
-        			} else if ( config.every(scope.validator.confirmField) ) {
+
+        			} else if ( scope.validator.confirmField(el) ) {
+                        scope.helper.addClass(icon, 'success');
+        			}
+
+                    if ( config.every(scope.validator.confirmField) ) {
 
                         scope.helper.addClass(parent, 'success');
                         scope.helper.removeClass(parent, 'error');
 
-        				return true;
-        			}
+                        return true;
+                    }
         		});
         	},
 
@@ -433,10 +439,8 @@
         scope.counter = {
 
             setup : function(el, counter){
-                let maxLength;
-
                 if ( el.hasAttribute('max-length') ) {
-                    maxLength = el.getAttribute('max-length');
+                    let maxLength = el.getAttribute('max-length');
 
                     if ( !!maxLength && el.value.length > maxLength ) {
                         el.value = el.value.substring(0, maxLength);
@@ -478,7 +482,7 @@
             scope.helper.addEventListeners(forma,'focus keyup keydown', function(ev){
                 scope.counter.setup(
                     ev.target,
-                    ev.target.parentNode.querySelector('span.char-count')
+                    ev.target.parentNode.querySelector('span.char-counter')
                 );
             });
 
@@ -492,7 +496,7 @@
 
                 scope.validator.isSubmitable( scope.validator.validateAllFields(formaConfig, ev ) );
                 scope.validator.validateSingleField( scope.validator.processFieldValidation(formaConfig, ev), labelWidths );
-                scope.counter.hide( ev.target.parentNode.querySelector('span.char-count') );
+                scope.counter.hide( ev.target.parentNode.querySelector('span.char-counter') );
             }, true);
 
 
@@ -513,9 +517,10 @@
                     fieldReady	    	   ('msg', target.nextElementSibling);
         			fieldReady	    	   ('hint', parent);
                     neutraliseField 	   (parent);
+                    neutraliseField 	   (parent.querySelector('span.input-icon'));
                     neutraliseField 	   (parent.querySelector('span.msg'));
                     neutraliseField 	   (grandparent.querySelector('span.hint'));
-                    scope.counter.show     ( parent.querySelector('span.char-count') );
+                    scope.counter.show     ( parent.querySelector('span.char-counter') );
 
             }, true);
 

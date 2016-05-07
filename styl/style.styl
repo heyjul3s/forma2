@@ -59,6 +59,7 @@
         position relative
         margin 15px 0
         padding 15px 0
+        transition height 300ms ease-out
 
         label
             .msg
@@ -88,23 +89,39 @@
             transition-delay 200ms
 
             &.visible
-
                 opacity 1
                 visibility visible
                 transform translateX(0)
 
         .char-counter
             position absolute
-            top calc(50% - 30px)
+            top calc(50% - 40px)
             right 0
             width 30px
             height 30px
+            padding 7px
             color white
+            background-color transparent
+            border-radius 50%
+            font-size 12px
+
+            transition-delay 150ms
+            transition opacity 400ms ease-out, visibility 400ms ease-out, transform 400ms ease-out, background-color 400ms ease-out
+            transform scale(0)
+            visibility hidden
+            opacity 0
+
+            &.active
+                visibility visible
+                opacity 1
+                transform scale(1)
+                background-color purple
 
             &::before,
             &::after
                 content ''
                 display block
+                position absolute
                 width 30px
                 height 30px
 
@@ -117,12 +134,53 @@
             transition background 400ms ease-out
 
             &::after
-                display block
                 content ''
+                display block
                 width 0
                 height 2px
                 background-color purple
                 transition width 400ms ease-out, max-width 400ms ease-out
+
+        .input-icon
+            display block
+            position absolute
+            top calc(50% - 40px)
+            right 0
+            width 30px
+            height 30px
+            background-color purple
+            border-radius 50%
+
+            transition opacity 400ms ease-out, visibility 400ms ease-out, transform 400ms ease-out, background-color 400ms ease-out, width 400ms ease-out, top 400ms ease-out, left 400ms ease-out
+            opacity 0
+            visibility hidden
+            transform scale(0)
+
+            &.visible
+                opacity 1
+                visibility visible
+                transform scale(1)
+                background-color red
+
+            &::before,
+            &::after
+                content ''
+                display block
+                position absolute
+                width 15px
+                height 3px
+                background-color white
+
+            &::before
+                top calc(50% - 2px)
+                left calc(50% - 7px)
+                transform rotate(45deg)
+
+            &::after
+                top calc(50% - 2px)
+                left calc(50% - 8px)
+                transform rotate(-45deg)
+
 
         //ERROR STATES
         &.error
@@ -136,6 +194,7 @@
             .bottom-bar
                 background-color red
 
+
         //SUCCESS STATES
         &.success
             label
@@ -144,7 +203,24 @@
                 > .msg.visible
                     opacity 0
                     visibility hidden
-                    transform translateX(0)
+                    transform translateX(-30%)
 
             .bottom-bar
                 background-color green
+
+            .input-icon
+                background-color green
+                opacity 1
+                visibility visible
+                transform scale(1)
+
+                &::before
+                    top: calc(50% - 1px);
+                    left: calc(50% - 5px);
+                    transform rotate3d(0, 1, 1, 315deg)
+
+                &::after
+                    top: 48%;
+                    left: 22%;
+                    width: 8px;
+                    transform rotate3d(0, 1, 1, -300deg)
