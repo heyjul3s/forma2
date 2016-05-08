@@ -197,7 +197,6 @@
         scope.validator = {
 
             setupField : function(element, cl, parent) {
-                //TODO: what if more than one class? add conditional
         		let theElement = element + '.' + cl;
 
         		if ( !parent.contains(parent.querySelector(theElement)) ) {
@@ -379,18 +378,18 @@
                 });
 
                 promise.then(function(){
-                    document.querySelector('#submit').disabled = false;
+                    document.querySelector('.btn-submit').disabled = false;
 
-                    if ( document.querySelector('#submit').classList.contains('disabled') ) {
-                        document.querySelector('#submit').classList.remove('disabled');
-                        document.querySelector('#submit').classList.add('enabled');
+                    if ( document.querySelector('.btn-submit').classList.contains('disabled') ) {
+                        document.querySelector('.btn-submit').classList.remove('disabled');
+                        document.querySelector('.btn-submit').classList.add('enabled');
                     }
                 }).catch(function(){
-                    document.querySelector('#submit').disabled = true;
+                    document.querySelector('.btn-submit').disabled = true;
 
-                    if ( !document.querySelector('#submit').classList.contains('disabled') ) {
-                        document.querySelector('#submit').classList.remove('enabled');
-                        document.querySelector('#submit').classList.add('disabled');
+                    if ( !document.querySelector('.btn-submit').classList.contains('disabled') ) {
+                        document.querySelector('.btn-submit').classList.remove('enabled');
+                        document.querySelector('.btn-submit').classList.add('disabled');
                     }
                 });
             }
@@ -464,22 +463,27 @@
          * @return {[type]} [description]
          */
         scope.init = function() {
-            let forma = scope.form.id('.forma');
+            let forma  = scope.form.id('.forma'),
+                submit = document.querySelector('.btn-submit'),
+                labels = document.querySelectorAll('label');
 
-            let labelWidths = scope.interface.getLabelWidth(document.querySelectorAll('label'));
+            let labelWidths = scope.interface.getLabelWidth( labels );
 
             //disable submit functionality on load
-            scope.validator.disableSubmit( document.querySelector('#submit') );
+            scope.validator.disableSubmit( submit );
 
             //setup char counter
             scope.helper.addEventListeners(forma,'focus keyup keydown', function(ev){
-
                 scope.counter.setup(
                     ev.target,
                     ev.target.parentNode.querySelector('span.char-counter')
                 );
-
             });
+
+            forma.addEventListener('submit', function(ev){
+                ev.preventDefault();
+                return false;
+            }, true);
 
             /**
              * blur events responsible for performing actual input data validation
@@ -519,7 +523,6 @@
                     scope.counter.show     (parent.querySelector('span.char-counter') );
 
             }, true);
-
         };
 
         return scope;
