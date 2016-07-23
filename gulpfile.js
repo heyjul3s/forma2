@@ -1,5 +1,3 @@
-//TODO: jade renamed to pug due to trademark issues. update packages and tasks accordingly
-
 (function(){
     'use strict';
 
@@ -23,12 +21,10 @@
 
         var paths = {
             src : {
-                jade: 'index.jade',
                 stylus: 'styl/**/*.styl',
                 js: 'js/forma2.js',
             },
             dest : {
-                html: './',
                 css: './dist/',
                 js: './dist/'
             }
@@ -72,20 +68,9 @@
     });
 
 
-    // gulp.task( 'jade', function() {
-    //     return gulp.src( 'index.jade' )
-    //         .pipe( plumber() )
-    //         .pipe( jade({
-    //             pretty: true
-    //         }))
-    //         .pipe( gulp.dest( paths.dest.html ) );
-    // });
-
-
     gulp.task('stylus', function(){
         return gulp.src( paths.src.stylus )
             .pipe( plumber() )
-            .pipe( sourcemaps.init() )
             .pipe( stylus({
 
             paths: [
@@ -109,15 +94,11 @@
             'include css': true
 
         }))
-            .pipe( sourcemaps.write('.') )
             .pipe( gulp.dest( paths.dest.css) );
     });
 
 
     gulp.task('watch', function() {
-        // gulp.watch( paths.src.jade, [
-        //     'jade'
-        // ]);
 
         gulp.watch( paths.src.stylus, [
             'stylus',
